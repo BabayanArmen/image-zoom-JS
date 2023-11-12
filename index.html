@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .image-zoom-wrapper{
+            border: 1px solid red;
+            width: 500px;
+            height: 600px;
+            position: relative;
+            overflow: hidden;
+        }
+        .imagezoom {
+            width: 400px;
+            height: auto;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform-origin: center center;
+            transform: translate(-50%, -50%) rotate(0deg);
+            padding: 20px;
+            color: #fff;
+            cursor: grab;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .control-buttons {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="image-zoom-wrapper">
+        <img class="imagezoom" id="resizableImage" src="./road-1072823_1920.jpg" alt="Image">
+        <div class="control-buttons">
+            <button onclick="rotate()">Rotate</button>
+            <button onclick="zoomIn()">Zoom In</button>
+            <button onclick="zoomOut()">Zoom Out</button>
+        </div>
+    </div>
+    
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const resizableImage = document.getElementById('resizableImage');
+            let isDragging = false;
+            let initialMouseX, initialMouseY, initialDivLeft, initialDivTop;
+            let currentWidth = 400;
+            let currentRotation = 0;
+
+            resizableImage.addEventListener('mousedown', function(event) {
+                event.preventDefault();
+
+                isDragging = true;
+                initialMouseX = event.clientX;
+                initialMouseY = event.clientY;
+                initialDivLeft = resizableImage.offsetLeft;
+                initialDivTop = resizableImage.offsetTop;
+                resizableImage.style.cursor = 'grabbing';
+
+                document.addEventListener('mousemove', handleMouseMove);
+                document.addEventListener('mouseup', handleMouseUp);
+            });
+
+            function handleMouseMove(event) {
+                if (isDragging) {
+                    const deltaX = event.clientX - initialMouseX;
+                    const deltaY = event.clientY - initialMouseY;
+
+                    resizableImage.style.left = `${initialDivLeft + deltaX}px`;
+                    resizableImage.style.top = `${initialDivTop + deltaY}px`;
+                }
+            }
+
+            function handleMouseUp() {
+                isDragging = false;
+                resizableImage.style.cursor = 'grab';
+
+                document.removeEventListener('mousemove', handleMouseMove);
+                document.removeEventListener('mouseup', handleMouseUp);
+            }
+
+            resizableImage.addEventListener('wheel', function(event) {
+                event.preventDefault();
+                const direction = event.deltaY > 0 ? -1 : 1;
+
+                currentWidth += direction * 10;
+                resizableImage.style.width = `${currentWidth}px`;
+            });
+
+            window.rotate = function() {
+                currentRotation += 90;
+                updateDivStyles();
+            }
+
+            window.zoomIn = function() {
+                currentWidth += 20;
+                updateDivStyles();
+            }
+
+            window.zoomOut = function() {
+                currentWidth -= 20;
+                updateDivStyles();
+            }
+
+            function updateDivStyles() {
+                resizableImage.style.transform = `translate(-50%, -50%) rotate(${currentRotation}deg)`;
+                resizableImage.style.width = `${currentWidth}px`;
+            }
+        });
+    </script>
+</body>
+</html>
